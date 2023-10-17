@@ -9,17 +9,20 @@ class DashboardController {
 
     public static function index(Router $router) {
         session_start();
-
         isAuth();
+        
+        $id = $_SESSION['id'];
+        $proyectos = Proyecto::belongsTo('propietarioId', $id);
+
 
         $router->render('dashboard/index',[
-            'titulo' => 'Proyectos'
+            'titulo' => 'Proyectos',
+            'proyectos' => $proyectos
         ]);
     }
     // Crea proyectos
     public static function crearProyecto(Router $router){
         session_start();
-
         isAuth();
 
         $alertas = [];
@@ -51,7 +54,6 @@ class DashboardController {
 
     public static function perfil(Router $router){
         session_start();
-
         isAuth();
         
         $router->render('dashboard/perfil' ,[
@@ -59,8 +61,24 @@ class DashboardController {
         ]);
     }
 
-    public static function proyecto () {
-        
+    public static function proyecto (Router $router) {
+        session_start();
+        isAuth();
+
+        // Obtener y validar el token
+        $token = $_GET['id'];
+        if (!$token) {header('location: /dashboard');}
+        $proyecto = Proyecto::where('url', $token);
+
+        // Revisar que el visitante sea el propietario del proyecto
+        if($proyecto->propietarioId !== $_SESSION['id']){header('location: /dashboard');}
+
+        $router->render('dashboard/proyecto',[
+            'titulo' => $proyecto->proyecto
+        ]);
     }
 
 }
+
+
+//localhost:3000/proyecto?id=4d6ed558e8a7243a0ae51936036fe525
