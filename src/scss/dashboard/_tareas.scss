@@ -9,3 +9,55 @@
         @include m.boton(v.$cyan, v.$blanco);
     }
 }
+
+.listado-tareas {
+    list-style: none;
+    padding: 0;
+    .no-tareas{
+        text-align: center;
+    }
+    
+    .tarea {
+        padding: .5rem 2rem;
+        border-bottom: 2px solid darken(v.$grisClaro, 5%);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        p{
+                font-size: 1.4rem;
+        }
+    }
+
+}
+
+
+.opciones{
+    display: flex;
+    gap: 1rem;
+    button {
+        border: none;
+        font-size: 1.2rem;
+        padding: .5rem 2rem;
+        text-transform: uppercase;
+        font-weight: 700;
+
+        }   
+  
+    .eliminar-tarea{
+        @include m.botonTarea(v.$rojo, v.$blanco);
+    }
+    
+}
+.estado-tarea{
+    &.pendiente{
+        @include m.botonTarea(darken(v.$morado, 10%), v.$blanco);
+    }
+    &.en-proceso{
+        @include m.botonTarea(v.$naranja, v.$blanco);
+    }
+    &.terminado {
+        @include m.botonTarea(v.$azul, v.$blanco);
+    }
+    
+}

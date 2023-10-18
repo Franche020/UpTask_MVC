@@ -56,3 +56,14 @@
         font-size: 10rem;
     }
 }
+
+@mixin botonTarea ($bgColor, $textColor){
+    transition-property: background-color;
+    transition-duration: .3s;
+    background-color: $bgColor;
+    cursor: pointer;
+        color: $textColor;
+        &:hover{
+            background-color: darken($bgColor, 10%);
+        }
+}

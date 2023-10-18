@@ -1,9 +1,95 @@
 (function (){ //IIEF
+
+    obtenerTareas();
+    let tareas = [];
     
     // Botón para mostrar el modal de agregar tarea
     const nuevaTareaBtn = document.querySelector('#agregar-tarea');
     nuevaTareaBtn.addEventListener('click', mostrarFormulario);
+    
+    // obtener las tareas de la API
+    async function obtenerTareas() {
+        try {
+            // Genero la url para leer la API
+            const id = obtenerProyecto();
+            const url = `api/tareas?id=${id}`;
+            
+            // Fetch y json para API
+            const respuesta = await fetch(url);
+            const resultado = await respuesta.json();
+            tareas = resultado.tareas;
+            // Llamada a funcion para procesar tareas
+            mostrarTareas();
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    // Generar HTML para mostrar las tareas
+    function mostrarTareas () {
+        // Seleccion del contenedor de tareas
+        const contenedorTareas = document.querySelector('#listado-tareas');
+        if(tareas.length === 0) {
+            // Si no hay tareas escritura de aviso
+            const LiNoTareas = document.createElement('LI');
+            const textoNoTareas = document.createElement('P');
+            textoNoTareas.textContent = 'No hay tareas';
+            textoNoTareas.classList.add('no-tareas');
 
+            LiNoTareas.appendChild(textoNoTareas);
+            contenedorTareas.appendChild(LiNoTareas);
+            return;
+        }
+        const estados = {
+            0:'Pendiente',
+            1: 'En Proceso',
+            2: 'Terminado'
+        };
+
+        
+        tareas.forEach(tarea => {
+            // Elemento lista
+            const contenedorTarea = document.createElement('LI');
+            contenedorTarea.dataset.tareaId = tarea.id;
+            contenedorTarea.classList.add('tarea');
+            //Parrafo nombre
+            const nombreTarea = document.createElement('P');
+            nombreTarea.textContent = tarea.nombre;
+            // Div Botones
+            const opcionesDiv = document.createElement('DIV');
+            opcionesDiv.classList.add('opciones');
+            // Botones
+                // boton Estado
+            const btnEstadoTarea = document.createElement('BUTTON');
+            btnEstadoTarea.classList.add('estado-tarea');
+            btnEstadoTarea.classList.add(`${estados[tarea.estado].replace(' ','-').toLowerCase()}`)
+            btnEstadoTarea.textContent = estados[tarea.estado];
+            btnEstadoTarea.dataset.estadoTarea = tarea.estado;
+
+            btnEstadoTarea.ondblclick = function(){
+                cambiarEstadoTarea({...tarea})
+            }
+                // Boton eliminar
+            const btnEliminarTarea = document.createElement('BUTTON');
+            btnEliminarTarea.classList.add('eliminar-tarea');
+            btnEliminarTarea.dataset.idTarea = tarea.id;
+            btnEliminarTarea.textContent = 'Eliminar'
+
+            // Añadir elementos
+            opcionesDiv.appendChild(btnEstadoTarea);
+            opcionesDiv.appendChild(btnEliminarTarea);
+            contenedorTarea.appendChild(nombreTarea);
+            contenedorTarea.appendChild(opcionesDiv);
+            contenedorTareas.appendChild(contenedorTarea);
+
+        });
+    }
+    // Limpieza del estado tareas
+    function limpiarTareas () {
+        const contenedorTareas = document.querySelector('#listado-tareas');
+        while (contenedorTareas.firstChild){
+            contenedorTareas.removeChild(contenedorTareas.firstChild);
+        }
+    }
     // Mostrar la ventana modal con el formulario de añadir tare, incluye event delegation
     function mostrarFormulario() {
         const modal = document.createElement('DIV');
@@ -48,7 +134,7 @@
 
         document.querySelector('.dashboard').appendChild(modal);
     }
-
+    // Cierra el mmodal pasandole la referencia
     function cerrarModal(modal) {
             //* Estilo y animacion
             const formulario = document.querySelector('.formulario');
@@ -59,7 +145,6 @@
                 modal.remove();
             }, 500);
     }
-
     // Submiting del form de la ventana modal
     function submitFormularioNuevaTarea() {
         const tarea = document.querySelector('#tarea').value.trim();
@@ -72,7 +157,6 @@
             agregarTarea(tarea);
             quitarAlerta();
     }
-
     // Funcion de alertas de errores en la ventana modal
     function mostrarAlerta(mensaje, tipo, referencia) {
 
@@ -95,14 +179,13 @@
             divAlerta.remove();
         }, 5000);
     }
-
+    // Quita alertas con la clase alerta
     function quitarAlerta () {
         const divAlertaPrevia = document.querySelector('.alerta');
         if(divAlertaPrevia){
             divAlertaPrevia.remove();
         }
     }
-
     // Funcion para Agregar las tareas a la API
     async function agregarTarea (tarea) {
         // Construir la peticion
@@ -126,13 +209,43 @@
                     cerrarModal(modal);
                 }, 1000);
             }
+            const tareaObj = {
+                id: String(resultado.id),
+                nombre: tarea,
+                estado: "0",
+                proyectoId: resultado.proyectoId
+            }
+            tareas = [...tareas, tareaObj];
+            console.log(tareas)
+            limpiarTareas();
+            mostrarTareas();
  
         } catch (error) {
             console.log(error)
         }
 
     }
-
+    // Actualiza el estado de la tarea
+    function cambiarEstadoTarea(tarea){
+        
+        switch(tarea.estado){
+            case '0':
+            tarea.estado = '1'
+            break;
+            case '1':
+            tarea.estado = '2'
+            break;
+            case '2':
+            tarea.estado = '0'
+            break;
+        }
+        actualizarTarea(tarea);
+    }
+    // Envia la actualizacion al servidor
+    function actualizarTarea(tarea){
+        
+    }
+    // obtiene el url de proyecto
     function obtenerProyecto (){
         // Obtener los parametros que vienen de la url
         const proyectoParams = new URLSearchParams(window.location.search);
