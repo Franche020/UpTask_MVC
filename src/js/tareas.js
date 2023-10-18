@@ -39,6 +39,7 @@
             contenedorTareas.appendChild(LiNoTareas);
             return;
         }
+
         const estados = {
             0:'Pendiente',
             1: 'En Proceso',
@@ -242,8 +243,41 @@
         actualizarTarea(tarea);
     }
     // Envia la actualizacion al servidor
-    function actualizarTarea(tarea){
-        
+    async function actualizarTarea(tarea){
+        const {estado, id, nombre, proyectoId} = tarea;
+        datos = new FormData();
+        datos.append('estado', estado);
+        datos.append('id', id);
+        datos.append('nombre', nombre);
+        datos.append('url', obtenerProyecto());
+
+        try {
+            const url = '/api/tarea/actualizar';
+
+            const respuesta = await fetch (url, {
+                method: 'post',
+                body: datos
+            })
+            const resultado = await respuesta.json();
+            if(resultado.tipo === 'exito') {
+                console.log(resultado.mensaje);
+                
+                tareas = tareas.map(tareaMemoria => {
+                    if(tareaMemoria.id === id){
+                        tareaMemoria = tarea;
+                    }
+                    return tareaMemoria;
+                })
+                
+                limpiarTareas();
+                mostrarTareas();
+                
+                mostrarAlerta(resultado.mensaje,resultado.tipo,document.querySelector(`[data-tarea-id="${tarea.id}"]`));
+
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
     // obtiene el url de proyecto
     function obtenerProyecto (){

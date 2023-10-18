@@ -62,13 +62,45 @@ class TareaController {
     }
 
     public static function actualizar () {
-        if ($_SERVER['REQIEST_METHOD'] === 'POST'){
-            
+        session_start();
+        isAuth();
+
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST'){
+            $proyecto = Proyecto::where('url', $_POST['url']);
+            $id = $_POST['id'];
+
+            if($proyecto->propietarioId !== $_SESSION['id']) {
+                $respuesta = [
+                    'tipo' => 'error',
+                    'mensaje' => 'No se ha podido actualizar la tarea'
+                ];
+                echo json_encode($respuesta);
+                return;
+            }
+            $tarea = Tarea::find($id);
+            $tarea->sincronizar($_POST);
+            $resultado = $tarea->guardar();
+            if($resultado) {
+                $respuesta = [
+                    'tipo' => 'exito',
+                    'mensaje' => 'Tarea Actualizada correctamente',
+                    'id' => $tarea->id,
+                    'proyectoId' => $proyecto->id
+                ];
+            } else {
+                $respuesta = [
+                    'tipo' => 'error',
+                    'mensaje' => 'Error, consulte con el administrador'
+                ];
+            }
+            echo json_encode($respuesta);
+            return;
         }
     }
     
     public static function eliminar () {
-        if ($_SERVER['REQIEST_METHOD'] === 'POST'){
+        if ($_SERVER['REQUEST_METHOD'] === 'POST'){
             
         }
     }
