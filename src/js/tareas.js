@@ -1,11 +1,13 @@
 (function (){ //IIEF
+    
     // Botón para mostrar el modal de agregar tarea
     const nuevaTareaBtn = document.querySelector('#agregar-tarea');
     nuevaTareaBtn.addEventListener('click', mostrarFormulario);
 
+    // Mostrar la ventana modal con el formulario de añadir tare, incluye event delegation
     function mostrarFormulario() {
         const modal = document.createElement('DIV');
-        modal.classList.add('modal');
+        modal.classList.add('modal'); //* Estilo y animacion
         modal.innerHTML= 
             `
             <form class="formulario nueva-tarea">
@@ -20,7 +22,8 @@
                     </div>
             </form>
         `;
-
+        
+            //* Estilo y animacion
         setTimeout(() => {
             const formulario = document.querySelector('.formulario');
             formulario.classList.add('animar');
@@ -28,20 +31,14 @@
         }, 5);
 
 
-        //* EVEN LISTENERS
-
+    //* .............EVEN LISTENERS........................
 
         modal.addEventListener('click', function(e){
             e.preventDefault();
 
-            if(e.target.classList.contains('cerrar-modal')){
-                const formulario = document.querySelector('.formulario');
-                formulario.classList.add('cerrar');
-                modal.classList.add('cerrar');
                 
-                setTimeout(() => {
-                    modal.remove();
-                }, 500);
+            if(e.target.classList.contains('cerrar-modal')){
+                cerrarModal(modal);
             }
 
             if(e.target.classList.contains('submit-nueva-tarea')){
@@ -52,20 +49,33 @@
         document.querySelector('.dashboard').appendChild(modal);
     }
 
+    function cerrarModal(modal) {
+            //* Estilo y animacion
+            const formulario = document.querySelector('.formulario');
+            formulario.classList.add('cerrar');
+            modal.classList.add('cerrar');
+            
+            setTimeout(() => {
+                modal.remove();
+            }, 500);
+    }
+
+    // Submiting del form de la ventana modal
     function submitFormularioNuevaTarea() {
         const tarea = document.querySelector('#tarea').value.trim();
 
         if(tarea === ''){
             // Mostrar una alerta de error
             mostrarAlerta('El Nombre de la Tarea es Obligatorio', 'error', document.querySelector('.formulario-legend'));
-            mostrarAlerta
-
             return;
         }
-            console.log(tarea);
+            agregarTarea(tarea);
+            quitarAlerta();
     }
 
+    // Funcion de alertas de errores en la ventana modal
     function mostrarAlerta(mensaje, tipo, referencia) {
+
         // Prevenir aparicion multiples alertas
         const divAlertaPrevia = document.querySelector('.alerta');
         if(divAlertaPrevia){
@@ -86,6 +96,50 @@
         }, 5000);
     }
 
+    function quitarAlerta () {
+        const divAlertaPrevia = document.querySelector('.alerta');
+        if(divAlertaPrevia){
+            divAlertaPrevia.remove();
+        }
+    }
 
+    // Funcion para Agregar las tareas a la API
+    async function agregarTarea (tarea) {
+        // Construir la peticion
+        const datos = new FormData();
+        datos.append('nombre',tarea)
+        datos.append('proyectoUrl', obtenerProyecto());
+        
+       
+        try {
+            const url = '/api/tarea/crear';
+            const respuesta = await fetch(url, {
+                method: 'POST',
+                body: datos
+            }); 
+            const resultado = await respuesta.json();
+            mostrarAlerta(resultado.mensaje,resultado.tipo,document.querySelector('.formulario-legend'));
+
+            if (resultado.tipo === 'exito'){
+                const modal = document.querySelector('.modal');
+                setTimeout(() => {
+                    cerrarModal(modal);
+                }, 1000);
+            }
+ 
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
+
+    function obtenerProyecto (){
+        // Obtener los parametros que vienen de la url
+        const proyectoParams = new URLSearchParams(window.location.search);
+        // crear un objeto con ellos
+        const proyecto = Object.fromEntries(proyectoParams.entries());
+        
+        return proyecto.id;
+    }
 
 })();
