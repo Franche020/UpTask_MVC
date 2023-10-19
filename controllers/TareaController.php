@@ -67,6 +67,7 @@ class TareaController {
 
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST'){
+
             $proyecto = Proyecto::where('url', $_POST['url']);
             $id = $_POST['id'];
 
