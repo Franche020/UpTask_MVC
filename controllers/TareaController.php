@@ -102,6 +102,31 @@ class TareaController {
     public static function eliminar () {
         if ($_SERVER['REQUEST_METHOD'] === 'POST'){
             
+            $proyectoId = Proyecto::where('url', $_POST['url'])->id;
+
+            // Comprobacion que el proyecto acedido desde el API es el mismo que la ID que la API envia del front
+            if($proyectoId === $_POST['proyectoId']) {
+                // Acceso a la tarea
+                $tarea = Tarea::find($_POST['id']);
+                // Si existe
+                if($tarea) {
+                    // Se elimna y se da respuesta afirmativa
+                    $respuesta = $tarea->eliminar();
+                    if($respuesta) {
+                        echo json_encode([
+                            'respuesta' => $respuesta
+                        ]);
+                        return;
+                    }
+                }
+                // si no hay tarea se da respuesta negativa
+                echo json_encode([
+                    'resultado' => 'error'
+                ]);
+                return;
+
+            }
+
         }
     }
 }

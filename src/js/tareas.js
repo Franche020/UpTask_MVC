@@ -1,4 +1,5 @@
 (function (){ //IIEF
+    
 
     obtenerTareas();
     let tareas = [];
@@ -24,7 +25,7 @@
             console.log(error);
         }
     }
-    // Generar HTML para mostrar las tareas
+    // Generar HTML para mostrar las tareas y eventos de los botones
     function mostrarTareas () {
         // Seleccion del contenedor de tareas
         const contenedorTareas = document.querySelector('#listado-tareas');
@@ -73,7 +74,11 @@
             const btnEliminarTarea = document.createElement('BUTTON');
             btnEliminarTarea.classList.add('eliminar-tarea');
             btnEliminarTarea.dataset.idTarea = tarea.id;
-            btnEliminarTarea.textContent = 'Eliminar'
+            btnEliminarTarea.textContent = 'Eliminar';
+            
+            btnEliminarTarea.ondblclick = function () {
+                confirmarEliminarTarea({...tarea})
+            }
 
             // Añadir elementos
             opcionesDiv.appendChild(btnEstadoTarea);
@@ -277,6 +282,64 @@
             }
         } catch (error) {
             console.log(error);
+        }
+    }
+    // Muestra la alerta para confirmar la eliminacion de la tarea
+    function confirmarEliminarTarea(tarea) {
+        Swal.fire({
+            title: '¿Estas Seguro?',
+            text: "!No podrás volver atrás!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: '!Sí, Eliminalo!'
+          }).then(async (result) => {
+            if (result.isConfirmed) {
+                const resultado = await eliminarTarea(tarea);
+               
+                if (resultado) {
+                    Swal.fire(
+                      '!Eliminado!',
+                      'La tarea se ha eliminado',
+                      'success'
+                      )
+                      
+                    tareas = tareas.filter( tareaMemoria => tareaMemoria.id !== tarea.id);
+                    
+                    limpiarTareas();
+                    mostrarTareas();
+                } else {
+                    Swal.fire(
+                        '!Error!',
+                        'La tarea no se ha eliminado',
+                        'error'
+                        )
+                }
+            }
+          })
+    }
+    // Funcion que conecta con la API para eliminar la tarea
+    async function eliminarTarea(tarea){
+        const datos = new FormData();
+        datos.append('id',tarea.id);
+        datos.append('proyectoId',tarea.proyectoId);
+        datos.append('url',obtenerProyecto());
+
+        try {
+            const url = '/api/tarea/eliminar';
+            const respuesta = await fetch(url,{
+                method: 'POST',
+                body: datos
+            })
+            const resultado = await respuesta.json();
+            if(resultado.respuesta) {
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.log(error);
+            return false;
         }
     }
     // obtiene el url de proyecto
