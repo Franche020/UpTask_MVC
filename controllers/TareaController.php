@@ -6,7 +6,7 @@ use Model\Proyecto;
 use Model\Tarea;
 
 class TareaController {
-    public static function index () {
+    public static function index () :void {
         session_start();
         isAuth();
 
@@ -22,12 +22,12 @@ class TareaController {
 
     }
     
-    public static function crear () {
+    public static function crear () :void {
         if ($_SERVER['REQUEST_METHOD'] === 'POST'){
             session_start();
             isAuth();
 
-            $proyecto = Proyecto::where('url', $_POST['proyectoUrl']);
+            $proyecto = Proyecto::where('url', s($_POST['proyectoUrl']));
             if(!$proyecto || $proyecto->propietarioId !== $_SESSION['id']) {
                 $respuesta = [
                     'tipo' => 'error',
@@ -38,7 +38,7 @@ class TareaController {
             } 
 
             // Crear e instanciar tarea
-            $tarea = new Tarea($_POST);
+            $tarea = new Tarea(sArray($_POST));
             $tarea->proyectoId = $proyecto->id;
             $resultado = $tarea->guardar();
 
@@ -61,15 +61,15 @@ class TareaController {
         }
     }
 
-    public static function actualizar () {
+    public static function actualizar () :void {
         session_start();
         isAuth();
 
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST'){
 
-            $proyecto = Proyecto::where('url', $_POST['url']);
-            $id = $_POST['id'];
+            $proyecto = Proyecto::where('url', s($_POST['url']));
+            $id = s($_POST['id']);
 
             if($proyecto->propietarioId !== $_SESSION['id']) {
                 $respuesta = [
@@ -80,7 +80,7 @@ class TareaController {
                 return;
             }
             $tarea = Tarea::find($id);
-            $tarea->sincronizar($_POST);
+            $tarea->sincronizar(sArray($_POST));
             $resultado = $tarea->guardar();
             if($resultado) {
                 $respuesta = [
@@ -100,15 +100,15 @@ class TareaController {
         }
     }
     
-    public static function eliminar () {
+    public static function eliminar () :void {
         if ($_SERVER['REQUEST_METHOD'] === 'POST'){
             
-            $proyectoId = Proyecto::where('url', $_POST['url'])->id;
+            $proyectoId = Proyecto::where('url', s($_POST['url']))->id;
 
             // Comprobacion que el proyecto acedido desde el API es el mismo que la ID que la API envia del front
-            if($proyectoId === $_POST['proyectoId']) {
+            if($proyectoId === s($_POST['proyectoId'])) {
                 // Acceso a la tarea
-                $tarea = Tarea::find($_POST['id']);
+                $tarea = Tarea::find(s($_POST['id']));
                 // Si existe
                 if($tarea) {
                     // Se elimna y se da respuesta afirmativa

@@ -11,7 +11,7 @@ class LoginController {
     public static function login (Router $router) {
         $alertas = [];
         if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-            $usuario = new Usuario($_POST);
+            $usuario = new Usuario(sArray($_POST));
 
             $alertas = $usuario->validarLogin();
 
@@ -59,7 +59,7 @@ class LoginController {
 
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-            $usuario->sincronizar($_POST);
+            $usuario->sincronizar(sArray($_POST));
             $alertas = $usuario->validarNuevaCuenta();
             
             if(empty($alertas)){
@@ -107,7 +107,7 @@ class LoginController {
 
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-            $usuario = new Usuario($_POST);
+            $usuario = new Usuario(sArray($_POST));
             $alertas = $usuario->validarEmail();
 
             if (empty($alertas)){
@@ -156,7 +156,7 @@ class LoginController {
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-            $usuario->sincronizar($_POST);
+            $usuario->sincronizar(sArray($_POST));
 
             // validar el password
             $alertas = $usuario->validarPassword();
