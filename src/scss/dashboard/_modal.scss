@@ -1,8 +1,13 @@
 @use 'base/mixins' as m;
 @use 'base/variables' as v;
 
+body.block-scroll{
+        overflow: hidden;
+    }
+
+
 .modal {
-    position: absolute;
+    position: fixed;
     top: 0;
     right: 0;
     bottom: 0;
@@ -31,6 +36,14 @@
     opacity: 0;
     border-radius: 1rem;
 
+    .campo{
+        label{
+            flex: 0 0 6rem;
+            @include m.tablet{
+                flex: 0 0 10rem;
+            }
+        }
+    }
     &.animar{
         position: relative;
         top: 50%;

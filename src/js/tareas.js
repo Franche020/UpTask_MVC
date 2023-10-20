@@ -6,6 +6,8 @@
     let filtradas = [];
     let filtro = ''
 
+    
+
     // Botón para mostrar el modal de agregar tarea
     const nuevaTareaBtn = document.querySelector('#agregar-tarea');
     nuevaTareaBtn.addEventListener('click', function () {
@@ -23,7 +25,7 @@
         console.log(filtro);
         filtrarTareas();
     }
-    // Funcion del filtrado de las tareas llamada antes de que las tareas se muestren para aplicar filtros necesarios
+    // Funcion del filtrado de las tareas, es llamada antes de que las tareas se muestren para aplicar filtros necesarios
     function filtrarTareas() {
 
         let filtrar = false;
@@ -34,7 +36,6 @@
             filtradas = [];
             filtrar = false;
         }
-        console.log(filtrar);
         mostrarTareas(filtrar);
     }
     // obtener las tareas de la API 
@@ -138,7 +139,9 @@
     function mostrarFormulario(tarea, editar = false) {
 
         const modal = document.createElement('DIV');
+        const body = document.body;
         modal.classList.add('modal'); //* Estilo y animacion
+        body.classList.add('block-scroll');
         modal.innerHTML =
             `
             <form class="formulario nueva-tarea">
@@ -200,11 +203,13 @@
     // Cierra el mmodal pasandole la referencia
     function cerrarModal(modal) {
         //* Estilo y animacion
+        const body = document.body;
         const formulario = document.querySelector('.formulario');
         formulario.classList.add('cerrar');
         modal.classList.add('cerrar');
 
         setTimeout(() => {
+            body.classList.remove('block-scroll')
             modal.remove();
         }, 500);
     }
@@ -267,7 +272,6 @@
                 proyectoId: resultado.proyectoId
             }
             tareas = [...tareas, tareaObj];
-            console.log(tareas)
             filtrarTareas();
 
         } catch (error) {
@@ -308,6 +312,23 @@
                 body: datos
             })
             const resultado = await respuesta.json();
+
+            let timerInterval
+                Swal.fire({
+                    title: resultado.mensaje,
+                    html: '',
+                    timer: 1000,
+                    timerProgressBar: false,
+                    didOpen: () => {
+                        Swal.showLoading()
+                        timerInterval = setInterval(() => {
+                        }, 100)
+                    },
+                    willClose: () => {
+                        clearInterval(timerInterval)
+                    }
+                })
+
             if (resultado.tipo === 'exito') {
 
 
@@ -329,21 +350,7 @@
                         cerrarModal(modal);
                     }, 1000);
                 }
-                let timerInterval
-                Swal.fire({
-                    title: resultado.mensaje,
-                    html: '',
-                    timer: 1000,
-                    timerProgressBar: false,
-                    didOpen: () => {
-                        Swal.showLoading()
-                        timerInterval = setInterval(() => {
-                        }, 100)
-                    },
-                    willClose: () => {
-                        clearInterval(timerInterval)
-                    }
-                })
+                
 
 
             }
