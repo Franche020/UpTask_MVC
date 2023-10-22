@@ -1,0 +1,69 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+@media (prefers-color-scheme: dark) {
+    body{
+        background-color: v.$grisDark;
+    }
+    .tagline {
+        color: v.$grisClaro;
+    }
+    .sidebar{
+        @include m.tablet{
+            background-color: darken(v.$indigo, 40%);
+        }
+    }
+        
+    
+    .dashboard{
+        background-color: v.$grisDark;
+    }
+    .nombre-pagina{
+        color: v.$grisClaro;
+    }
+    .filtros{
+        background-color: darken(v.$gris, 30%);
+        h2{
+            color: lighten(v.$indigo, 10%);
+        }
+        label{
+            color: v.$grisClaro;
+        }
+    }
+    .tarea {
+        p{
+            color: v.$grisClaro;
+        }
+    }
+    .modal {
+        .formulario{
+            legend{
+                color: v.$grisClaro;
+            }
+            background-color: v.$grisOscuro;
+
+        }
+    }
+    .formulario .campo {
+        
+        label{
+            color: v.$grisClaro;
+        }
+        input{
+            background-color: darken(v.$grisClaro, 10%);
+            color: darken(v.$grisOscuro, 10%);;
+        }
+            
+    }
+    .barra {
+        background-color: v.$grisOscuro;
+
+        box-shadow: 1px 12px 9px -13px darken(v.$grisOscuro, 40%);
+        p{
+            color: v.$grisClaro;
+            span{
+                color: lighten(v.$indigo, 30%);
+            }
+        }
+    }
+}

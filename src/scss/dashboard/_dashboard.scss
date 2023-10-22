@@ -25,7 +25,6 @@
     }
     .formulario {
         input:not([type="submit"],[type="button"]){
-            background-color: v.$blanco;
         }
         input[type="submit"]{
             @include m.boton(v.$indigo, v.$blanco);
